@@ -61,7 +61,7 @@ string: in JSON format
       "subtotal": 11.25
     }
   ],
-  "total_ item_count": 5,
+  "total_item_count": 5,
   "total": 18.75
 }
 ```
