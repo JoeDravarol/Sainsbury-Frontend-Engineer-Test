@@ -15,34 +15,14 @@ async function run(productUUIDs) {
       retail_price: product.retail_price.price,
       quantity: getProductQuantity(product.product_uid, productUUIDs),
     }
-  });
+  }); 
+  // Produce summary  
+  const productsSummary = getProductSummary(condenseProductsInfo, productUUIDs.length);
   
-  // Produce summary
-  const summary = {
-    lines: [],
-    total_item_count: productUUIDs.length,
-    total: 0,
-  };
-  
-  let totalRetailPrice = 0;
-  
-  condenseProductsInfo.forEach(product => {
-    const productLine = {
-      uid: product.uid,
-      quantity: product.quantity,
-      subtotal: product.quantity * product.retail_price,
-    };
-    
-    totalRetailPrice += productLine.subtotal
-    
-  	summary.lines.push(productLine);
-  });
-  
-  summary.total = totalRetailPrice;
-
-  return JSON.stringify(summary);
+  return JSON.stringify(productsSummary);
 }
 
+// HELPERS:
 // Note: It will be more optimal to get all quantity in one pass through
 function getProductQuantity(uid, productUUIDs) {
   let quantity = 0;
@@ -56,4 +36,46 @@ function getProductQuantity(uid, productUUIDs) {
   return quantity;
 };
 
-run(["6447344", "6447344", "3052068", "3052068", "3052068"]);
+function getProductSummary(productsInfo, totalProductCount) {
+  const summary = {
+    lines: [],
+    total_item_count: totalProductCount,
+    total: 0,
+  };
+  let totalRetailPrice = 0;
+
+  productsInfo.forEach(product => {
+    const productLine = {
+      uid: product.uid,
+      quantity: product.quantity,
+      subtotal: product.quantity * product.retail_price,
+    };
+    
+    // Update total retail price
+    totalRetailPrice += productLine.subtotal
+    
+  	summary.lines.push(productLine);
+  });
+
+  summary.total = totalRetailPrice;
+
+  return summary;
+};
+
+console.log('result:', run(["6447344", "6447344", "3052068", "3052068", "3052068"]) );
+console.log('expected:', {
+  "lines": [
+    {
+      "uid": "6447344",
+      "quantity": 2,
+      "subtotal": 7.5
+    },
+    {
+      "uid": "3052068",
+      "quantity": 3,
+      "subtotal": 11.25
+    }
+  ],
+  "total_ item_count": 5,
+  "total": 18.75
+});
